@@ -23,8 +23,6 @@ void playDeadStroke(note *noteToEvaluate);
 bool isAfterTouch(note *noteToEvaluate);
 bool shouldPlay(note *noteToEvaluate);
 void play(note *noteToEvaluate);
-void setPowerLine(int pl);
 int readInput(int pl, int note);
-int sendControlMessage(int message);
 int calcMidiNote(int pl, int note);
 #endif // H_A
