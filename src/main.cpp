@@ -41,7 +41,7 @@ void setup()
     Serial.begin(38400);
     maxPowerLine = 15;
     maxNote = 1;
-    sampleTime = 7;
+    sampleTime = 5;
     blockTime = 60;
     DDRD = B11111111; // set PORTD (digital 7~0) to outputs
     for (int pw = 0; pw < maxPowerLine; pw++)
@@ -94,7 +94,7 @@ void setup()
         // Set a sensible default when not written to eeprom yest
         if (maxval == 255)
         {
-            maxval = 500;
+            maxval = 99;
         }; 
         Serial.print("Reading maxval: ");
         Serial.println(maxval);
@@ -131,6 +131,7 @@ void evaluateActiveNote(note *noteToEvaluate)
             if (isAfterTouch(noteToEvaluate))
             {
                 // Not sure what synth needs what but this works for pianoteq
+                Serial.println("-------------sensing aftertouch");
                 usbMIDI.sendNoteOff(calcMidiNote(noteToEvaluate->pl, noteToEvaluate->note), 0, currentSettingVal[1]);
                 usbMIDI.sendAfterTouch(0, currentSettingVal[1]);
                 noteToEvaluate->deleted = true;

@@ -9,7 +9,7 @@ extern int currentSettingVal[5];
 extern int switch1Pin;
 extern int switch2Pin;
 extern TM1637Display display;
-int maxSettingVal[6] = {5, 15, 1, 100, 20, 1};
+int maxSettingVal[6] = {5, 15, 2, 100, 20, 1};
 extern int maxNotes[32];
 extern int sensitivities[32];
 extern int lastHitNote;

@@ -103,6 +103,10 @@ void play(note *noteToEvaluate)
     correctedVelocity = velocity * pow(factor, pw);
     midiVal = map(correctedVelocity, 0, maxHigh, 1, 127);
     midiNote = calcMidiNote(noteToEvaluate->pl, noteToEvaluate->note);
+    if (currentSettingVal[2] == 2)
+    {
+        usbMIDI.sendControlChange(123, 0, currentSettingVal[1] );
+    }
     usbMIDI.sendNoteOn(midiNote, midiVal, currentSettingVal[1]);
     if (currentSettingVal[2] == 1)
     {
@@ -120,11 +124,14 @@ void play(note *noteToEvaluate)
     Serial.println(maxHigh);
     Serial.print(" Corrected velocity: ");
     Serial.println(correctedVelocity);
+    Serial.print(" Number of samples: ");
+    Serial.println(noteToEvaluate->nrSamples);
 
     // If the current setting is 3, we are setting the max value for the notes by hitting them hard
     if (currentSetting == 3)
     {
         int hv = noteToEvaluate->highestVal / 10;
+        if(hv >= 100) { hv = 99; } //we cannot display higher
         maxNotes[noteNumber] = hv;
         currentSettingVal[3] = hv;
         updateDisplay();
@@ -133,5 +140,12 @@ void play(note *noteToEvaluate)
 
 int readInput(int pl, int note)
 {
-    return (analogRead(note));
+    if(note == 2){
+        int dummy = analogRead(0);
+        return(0);
+
+    }else{
+        return (analogRead(note));
+    }
+    
 }
