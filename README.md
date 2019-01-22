@@ -1,3 +1,3 @@
 # mallet_controller
 
- [Doc1 link](docs/doc1.md)
+ [Doc1 link](docs/doc1)
