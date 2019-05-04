@@ -10,8 +10,8 @@ extern int switch1Pin;
 extern int switch2Pin;
 extern TM1637Display display;
 int maxSettingVal[6] = {5, 15, 2, 100, 20, 1};
-extern int maxNotes[32];
-extern int sensitivities[32];
+extern int maxNotes[33];
+extern int sensitivities[33];
 extern int lastHitNote;
 
 void updateDisplay()
@@ -88,6 +88,7 @@ void handleInterface()
   {
     if (!button2Pressed)
     {
+      Serial.print("butoton2 pressed");
       currentSettingVal[currentSetting] = (currentSettingVal[currentSetting] < maxSettingVal[currentSetting]) ? currentSettingVal[currentSetting] + 1 : 0;
       updateDisplay();
       handleSettings();

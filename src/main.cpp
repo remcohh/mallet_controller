@@ -5,13 +5,13 @@
 #include <TM1637Display.h>
 #include <EEPROM.h>
 
-int offSet[16][2];
-int lastVal[16][2];
-int nrConstVals[16][2];
-int highestVal[16][2];
-long blocked[16][2];
-int watching[16][2];
-int currentVal[16][2];
+int offSet[16][3];
+int lastVal[16][3];
+int nrConstVals[16][3];
+int highestVal[16][3];
+long blocked[16][3];
+int watching[16][3];
+int currentVal[16][3];
 int maxPowerLine;
 int maxNote;
 int nrEvaluatingNotes;
@@ -23,10 +23,10 @@ int switch2Pin;
 int settings[2][10];
 int currentSetting;
 int currentSettingVal[5];
-int maxNotes[32];
-int sensitivities[32];
+int maxNotes[33];
+int sensitivities[33];
 int lastHitNote;
-bool afterTouching[16][2];
+bool afterTouching[16][3];
 
 byte controlPins[] = {
     B00000000, B00000001, B00000010, B00000011, B00000100, B00000101, B00000110, B00000111,
@@ -40,7 +40,7 @@ void setup()
 {
     Serial.begin(38400);
     maxPowerLine = 15;
-    maxNote = 1;
+    maxNote = 2;
     sampleTime = 5;
     blockTime = 60;
     DDRD = B11111111; // set PORTD (digital 7~0) to outputs
@@ -55,6 +55,7 @@ void setup()
             highestVal[pw][i] = 0;
             watching[pw][i] = 0;
             blocked[pw][i] = 0;
+            afterTouching[pw][i] = false;
         }
     }
 
@@ -79,7 +80,7 @@ void setup()
     uint8_t blank[] = {0x00, 0x00, 0x00, 0x00};
     display.setBrightness(0x0f);
 
-    display.showNumberDecEx(101, 0x40, true, 4, 0);
+    display.showNumberDecEx(102, 0x40, true, 4, 0);
     currentSetting = 0;
     currentSettingVal[0] = 2; //octaaf
     currentSettingVal[1] = 1; //midikanaal
@@ -88,7 +89,7 @@ void setup()
     currentSettingVal[4] = 0; //sensitivy
     currentSettingVal[5] = 0; //store values
 
-    for (int address = 0; address <= 31; address++)
+    for (int address = 0; address <= 32; address++)
     {
         int maxval = EEPROM.read(address);
         // Set a sensible default when not written to eeprom yest
@@ -100,7 +101,7 @@ void setup()
         Serial.println(maxval);
         maxNotes[address] = maxval;
     }
-    for (int nr = 0; nr <= 31; nr++)
+    for (int nr = 0; nr <= 32; nr++)
     {
         int sensitivity = EEPROM.read(nr + 50);
         // Set a sensible default when not written to eeprom yest
@@ -131,7 +132,7 @@ void evaluateActiveNote(note *noteToEvaluate)
             if (isAfterTouch(noteToEvaluate))
             {
                 // Not sure what synth needs what but this works for pianoteq
-                Serial.println("-------------sensing aftertouch");
+                Serial.print("-------------sensing aftertouch");
                 usbMIDI.sendNoteOff(calcMidiNote(noteToEvaluate->pl, noteToEvaluate->note), 0, currentSettingVal[1]);
                 usbMIDI.sendAfterTouch(0, currentSettingVal[1]);
                 noteToEvaluate->deleted = true;
@@ -182,6 +183,11 @@ void evaluateActiveNotes(int currentPower)
 
 void loop()
 {
+    int a = analogRead(2);
+    // if(a>100){
+    //     Serial.println(analogRead(2));
+    // }
+   
     handleInterface();
     for (int pl = 0; pl <= maxPowerLine; pl++)
     {
@@ -212,7 +218,7 @@ void loop()
                 }
                 else
                 {
-                    if (currentVal[pl][note] < 5)
+                    if (currentVal[pl][note] < 150)
                     {
                         afterTouching[pl][note] = false;
                     }
@@ -231,10 +237,10 @@ void loop()
             {
                 nrConstVals[pl][note] += 1;
 
-                if (!watching[pl][note] && nrConstVals[pl][note] > 20 && (offSet[pl][note] - currentVal[pl][note] > 10 || offSet[pl][note] - currentVal[pl][note] < -10))
+                if (!watching[pl][note] && nrConstVals[pl][note] > 200 && (offSet[pl][note] - currentVal[pl][note] > 10 || offSet[pl][note] - currentVal[pl][note] < -10))
                 {
                     nrConstVals[pl][note] = 0;
-                    Serial.println("Resetting offset");
+                    Serial.print(".");
                     offSet[pl][note] = currentVal[pl][note];
                 }
             }

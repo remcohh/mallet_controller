@@ -2,23 +2,23 @@
 #include <EEPROM.h>
 #include <settings.h>
 
-extern int currentVal[16][2];
-extern int offSet[16][2];
-extern int lastVal[166][2];
-extern int nrConstVals[16][2];
-extern int highestVal[16][2];
-extern long blocked[16][2];
-extern long measureStart[16][2];
-extern int watching[16][2];
-extern int currentVal[16][2];
-extern const int midiNumbers[16][2];
+extern int currentVal[16][3];
+extern int offSet[16][3];
+extern int lastVal[166][3];
+extern int nrConstVals[16][3];
+extern int highestVal[16][3];
+extern long blocked[16][3];
+extern long measureStart[16][3];
+extern int watching[16][3];
+extern int currentVal[16][3];
+extern const int midiNumbers[16][3];
 extern int currentSettingVal[5];
 extern int maxNotes[32];
 extern int currentSetting;
 extern int sensitivities[32];
 int correctedVelocity;
 extern int lastHitNote;
-extern bool afterTouching[16][2];
+extern bool afterTouching[16][3];
 
 typedef struct
 {
@@ -42,7 +42,7 @@ int calcMidiNote(int pl, int note)
 bool shouldStartWatching(int pl, int note, int currentVal)
 {
     int diff = currentVal - offSet[pl][note];
-    return (diff > 20 && blocked[pl][note] == 0 && !afterTouching[pl][note]);
+    return (diff > 50 && blocked[pl][note] == 0 && !afterTouching[pl][note]);
 }
 
 bool shouldPlayDeadStroke(note *noteToEvaluate)
@@ -56,7 +56,7 @@ void playDeadStroke(note *noteToEvaluate)
 
 bool isAfterTouch(note *noteToEvaluate)
 {
-    if (noteToEvaluate->currentVal > 20 && !afterTouching[noteToEvaluate->pl][noteToEvaluate->note])
+    if (noteToEvaluate->diff > 50 && !afterTouching[noteToEvaluate->pl][noteToEvaluate->note])
     {
         Serial.println("---> could be aftertouch!");
         return (true);
@@ -140,12 +140,11 @@ void play(note *noteToEvaluate)
 
 int readInput(int pl, int note)
 {
-    if(note == 2){
-        int dummy = analogRead(0);
+    if(pl > 0 && note == 2){
         return(0);
-
-    }else{
+    }
+    else
+    {
         return (analogRead(note));
     }
-    
 }
